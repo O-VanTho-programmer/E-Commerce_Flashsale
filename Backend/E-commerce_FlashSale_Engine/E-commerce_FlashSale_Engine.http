@@ -1,0 +1,6 @@
+@E_commerce_FlashSale_Engine_HostAddress = http://localhost:5235
+
+GET {{E_commerce_FlashSale_Engine_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

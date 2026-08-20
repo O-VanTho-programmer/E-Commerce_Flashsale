@@ -1,0 +1,184 @@
+<style>
+#erd svg.erDiagram .divider path { stroke-opacity: 0.5; }
+#erd svg.erDiagram .row-rect-odd path,
+#erd svg.erDiagram .row-rect-odd rect,
+#erd svg.erDiagram .row-rect-even path,
+#erd svg.erDiagram .row-rect-even rect { stroke: none !important; }
+</style>
+<h2 class="sr-only">Sơ đồ ERD hệ thống Omni-Channel E-Commerce & Flash Sale Engine</h2>
+<div id="erd"></div>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"anthropic-sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '13px',
+    fontFamily: '"anthropic-sans", sans-serif',
+    lineColor: dark ? '#9c9a92' : '#73726c',
+    textColor: dark ? 'black' : 'black',
+  },
+});
+const { svg } = await mermaid.render('erd-svg', `erDiagram
+  CATEGORY ||--o{ CATEGORY : "parent of"
+  CATEGORY ||--o{ PRODUCT : contains
+  PRODUCT ||--o{ PRODUCT_VARIANT : has
+  PRODUCT ||--o{ PRODUCT_IMAGE : has
+  PRODUCT_VARIANT ||--o| FLASH_SALE_ITEM : "on sale"
+  FLASH_SALE ||--o{ FLASH_SALE_ITEM : includes
+  USER ||--o| CART : owns
+  CART ||--o{ CART_ITEM : contains
+  CART_ITEM }o--|| PRODUCT_VARIANT : references
+  CART_ITEM ||--o| STOCK_RESERVATION : holds
+  USER ||--o{ ORDER : places
+  ORDER ||--o{ ORDER_ITEM : contains
+  ORDER_ITEM }o--|| PRODUCT_VARIANT : references
+  ORDER ||--o| PAYMENT : "paid by"
+  PAYMENT ||--o{ WEBHOOK_LOG : "confirmed via"
+  USER ||--o{ AUDIT_LOG : generates
+
+  CATEGORY {
+    int Id PK
+    int ParentCategoryId FK
+    string Name
+    string Slug
+  }
+  PRODUCT {
+    int Id PK
+    int CategoryId FK
+    string Name
+    string Description
+    bool IsActive
+    datetime CreatedAt
+  }
+  PRODUCT_VARIANT {
+    int Id PK
+    int ProductId FK
+    string Sku
+    string Color
+    string Size
+    decimal Price
+    int StockQuantity
+    rowversion RowVersion
+  }
+  PRODUCT_IMAGE {
+    int Id PK
+    int ProductId FK
+    string Url
+    int SortOrder
+  }
+  FLASH_SALE {
+    int Id PK
+    string Name
+    datetime StartAt
+    datetime EndAt
+    string Status
+  }
+  FLASH_SALE_ITEM {
+    int Id PK
+    int FlashSaleId FK
+    int ProductVariantId FK
+    decimal SalePrice
+    int SaleStock
+    int SoldCount
+    rowversion RowVersion
+  }
+  USER {
+    int Id PK
+    string Email
+    string PasswordHash
+    string Role
+    datetime CreatedAt
+  }
+  CART {
+    int Id PK
+    int UserId FK
+    datetime UpdatedAt
+  }
+  CART_ITEM {
+    int Id PK
+    int CartId FK
+    int ProductVariantId FK
+    int Quantity
+    bool IsFlashSale
+  }
+  STOCK_RESERVATION {
+    int Id PK
+    int CartItemId FK
+    int ProductVariantId FK
+    int Quantity
+    datetime ExpiresAt
+    string Status
+  }
+  ORDER {
+    int Id PK
+    int UserId FK
+    string OrderCode
+    string Status
+    decimal TotalAmount
+    datetime CreatedAt
+    rowversion RowVersion
+  }
+  ORDER_ITEM {
+    int Id PK
+    int OrderId FK
+    int ProductVariantId FK
+    int Quantity
+    decimal UnitPrice
+  }
+  PAYMENT {
+    int Id PK
+    int OrderId FK
+    string Provider
+    string Status
+    decimal Amount
+    datetime PaidAt
+  }
+  WEBHOOK_LOG {
+    int Id PK
+    int PaymentId FK
+    string WebhookEventId UK
+    string Payload
+    string ProcessStatus
+    datetime ReceivedAt
+  }
+  AUDIT_LOG {
+    int Id PK
+    int UserId FK
+    string EntityName
+    string EntityId
+    string Action
+    string OldValues
+    string NewValues
+    datetime Timestamp
+  }`);
+document.getElementById('erd').innerHTML = svg;
+
+document.querySelectorAll('#erd svg.erDiagram .node').forEach(node => {
+  const firstPath = node.querySelector('path[d]');
+  if (!firstPath) return;
+  const d = firstPath.getAttribute('d');
+  const nums = d.match(/-?[\d.]+/g)?.map(Number);
+  if (!nums || nums.length < 8) return;
+  const xs = [nums[0], nums[2], nums[4], nums[6]];
+  const ys = [nums[1], nums[3], nums[5], nums[7]];
+  const x = Math.min(...xs), y = Math.min(...ys);
+  const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', '8');
+  for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+    if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+  }
+  firstPath.replaceWith(rect);
+});
+
+document.querySelectorAll('#erd svg.erDiagram .row-rect-odd path, #erd svg.erDiagram .row-rect-even path').forEach(p => {
+  p.setAttribute('stroke', 'none');
+});
+</script>
