@@ -4,11 +4,31 @@ namespace ECommerce.Domain.Entities;
 
 public class WebhookLog : BaseEntity
 {
-    public int PaymentId { get; set; }
-    public string WebhookEventId { get; set; } = string.Empty; // UK
-    public string Payload { get; set; } = string.Empty;
-    public Enums.WebhookProcessStatus ProcessStatus { get; set; }
-    public DateTime ReceivedAt { get; set; }
+    public int PaymentId { get; private set; }
+    public string WebhookEventId { get; private set; } // UK
+    public string Payload { get; private set; }
+    public Enums.WebhookProcessStatus ProcessStatus { get; private set; }
+    public DateTime ReceivedAt { get; private set; }
 
-    public Payment? Payment { get; set; }
+    public Payment? Payment { get; private set; }
+
+    private WebhookLog()
+    {
+        WebhookEventId = string.Empty;
+        Payload = string.Empty;
+    }
+
+    public WebhookLog(int paymentId, string webhookEventId, string payload)
+    {
+        PaymentId = paymentId;
+        WebhookEventId = webhookEventId;
+        Payload = payload;
+        ProcessStatus = Enums.WebhookProcessStatus.Pending;
+        ReceivedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateProcessStatus(Enums.WebhookProcessStatus status)
+    {
+        ProcessStatus = status;
+    }
 }

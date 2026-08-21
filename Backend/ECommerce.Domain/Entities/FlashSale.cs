@@ -5,10 +5,28 @@ namespace ECommerce.Domain.Entities;
 
 public class FlashSale : BaseEntity
 {
-    public string Name { get; set; } = string.Empty;
-    public DateTime StartAt { get; set; }
-    public DateTime EndAt { get; set; }
-    public Enums.FlashSaleStatus Status { get; set; }
+    public string Name { get; private set; }
+    public DateTime StartAt { get; private set; }
+    public DateTime EndAt { get; private set; }
+    public Enums.FlashSaleStatus Status { get; private set; }
 
-    public ICollection<FlashSaleItem> FlashSaleItems { get; set; } = new List<FlashSaleItem>();
+    public ICollection<FlashSaleItem> FlashSaleItems { get; private set; } = new List<FlashSaleItem>();
+
+    private FlashSale()
+    {
+        Name = string.Empty;
+    }
+
+    public FlashSale(string name, DateTime startAt, DateTime endAt)
+    {
+        Name = name;
+        StartAt = startAt;
+        EndAt = endAt;
+        Status = Enums.FlashSaleStatus.Scheduled;
+    }
+
+    public void UpdateStatus(Enums.FlashSaleStatus status)
+    {
+        Status = status;
+    }
 }
