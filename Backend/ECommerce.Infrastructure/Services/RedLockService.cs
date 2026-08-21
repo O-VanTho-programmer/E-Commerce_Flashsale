@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using ECommerce.Application.Interfaces.Services;
+using ECommerce.Application.Common.Interfaces.Services;
 using RedLockNet;
 using RedLockNet.SERedis;
 

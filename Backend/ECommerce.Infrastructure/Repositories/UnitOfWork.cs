@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using ECommerce.Application.Interfaces.Repositories;
+using ECommerce.Application.Common.Interfaces.Repositories;
 using ECommerce.Domain.Entities;
 using ECommerce.Infrastructure.Data;
 

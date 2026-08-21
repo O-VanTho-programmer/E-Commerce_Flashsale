@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ECommerce.Application.Interfaces.Repositories;
+using ECommerce.Application.Common.Interfaces.Repositories;
 using ECommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 

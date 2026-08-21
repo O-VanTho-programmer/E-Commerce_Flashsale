@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using ECommerce.Application.Interfaces.Repositories;
-using ECommerce.Application.Interfaces.Services;
+using ECommerce.Application.Common.Interfaces.Repositories;
+using ECommerce.Application.Common.Interfaces.Services;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Repositories;
 using ECommerce.Infrastructure.Services;

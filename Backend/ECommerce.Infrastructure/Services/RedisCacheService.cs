@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using ECommerce.Application.Interfaces.Services;
+using ECommerce.Application.Common.Interfaces.Services;
 using StackExchange.Redis;
 
 namespace ECommerce.Infrastructure.Services;
