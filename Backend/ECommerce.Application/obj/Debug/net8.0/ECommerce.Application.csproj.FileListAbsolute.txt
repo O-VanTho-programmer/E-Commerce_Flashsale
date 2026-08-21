@@ -24,3 +24,4 @@ d:\MyProgramme\E-Commerce_Flashsale\Backend\ECommerce.Application\obj\Debug\net8
 d:\MyProgramme\E-Commerce_Flashsale\Backend\ECommerce.Application\obj\Debug\net8.0\refint\ECommerce.Application.dll
 d:\MyProgramme\E-Commerce_Flashsale\Backend\ECommerce.Application\obj\Debug\net8.0\ECommerce.Application.pdb
 d:\MyProgramme\E-Commerce_Flashsale\Backend\ECommerce.Application\obj\Debug\net8.0\ref\ECommerce.Application.dll
+D:\MyProgramme\E-Commerce_Flashsale\Backend\ECommerce.Application\obj\Debug\net8.0\ECommerce.Application.sourcelink.json

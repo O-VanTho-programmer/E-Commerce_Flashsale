@@ -17,11 +17,11 @@
 - [x] Define Repository Interfaces in `ECommerce.Application`.
 
 ## Phase 2: Infrastructure (Database & EF Core)
-- [ ] Implement Fluent API configurations (`IEntityTypeConfiguration`) for all entities.
-- [ ] Create `AppDbContext`.
-- [ ] Implement EF Core Migrations and Initial Create.
-- [ ] Implement Repositories for the interfaces.
-- [ ] Set up Redis connection and configuration for Cache/Distributed Lock.
+- [x] Implement Fluent API configurations (`IEntityTypeConfiguration`) for all entities.
+- [x] Create `AppDbContext`.
+- [x] Implement EF Core Migrations and Initial Create.
+- [x] Implement Repositories for the interfaces.
+- [x] Set up Redis connection and configuration for Cache/Distributed Lock.
 
 ## Phase 3: Application (Use Cases & Business Logic)
 - [ ] Implement CQRS (Commands/Queries) for Catalog (CRUD).
