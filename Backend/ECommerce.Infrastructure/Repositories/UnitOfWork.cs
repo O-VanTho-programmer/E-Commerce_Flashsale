@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using ECommerce.Application.Common.Interfaces.Repositories;
 using ECommerce.Domain.Entities;
@@ -9,37 +8,43 @@ namespace ECommerce.Infrastructure.Repositories;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
-    
-    private IGenericRepository<Category>? _categories;
-    private IGenericRepository<Product>? _products;
-    private IGenericRepository<ProductVariant>? _productVariants;
-    private IGenericRepository<ProductImage>? _productImages;
-    private IGenericRepository<FlashSale>? _flashSales;
-    private IGenericRepository<FlashSaleItem>? _flashSaleItems;
-    private IGenericRepository<Cart>? _carts;
-    private IGenericRepository<CartItem>? _cartItems;
-    private IGenericRepository<Order>? _orders;
-    private IGenericRepository<OrderItem>? _orderItems;
-    private IGenericRepository<Payment>? _payments;
-    private IGenericRepository<User>? _users;
+
+    private ICategoryRepository? _categories;
+    private IProductRepository? _products;
+    private IProductVariantRepository? _productVariants;
+    private IProductImageRepository? _productImages;
+    private IFlashSaleRepository? _flashSales;
+    private IFlashSaleItemRepository? _flashSaleItems;
+    private ICartRepository? _carts;
+    private ICartItemRepository? _cartItems;
+    private IOrderRepository? _orders;
+    private IOrderItemRepository? _orderItems;
+    private IStockReservationRepository? _stockReservations;
+    private IPaymentRepository? _payments;
+    private IUserRepository? _users;
+    private IWebhookLogRepository? _webhookLogs;
+    private IAuditLogRepository? _auditLogs;
 
     public UnitOfWork(AppDbContext context)
     {
         _context = context;
     }
 
-    public IGenericRepository<Category> Categories => _categories ??= new GenericRepository<Category>(_context);
-    public IGenericRepository<Product> Products => _products ??= new GenericRepository<Product>(_context);
-    public IGenericRepository<ProductVariant> ProductVariants => _productVariants ??= new GenericRepository<ProductVariant>(_context);
-    public IGenericRepository<ProductImage> ProductImages => _productImages ??= new GenericRepository<ProductImage>(_context);
-    public IGenericRepository<FlashSale> FlashSales => _flashSales ??= new GenericRepository<FlashSale>(_context);
-    public IGenericRepository<FlashSaleItem> FlashSaleItems => _flashSaleItems ??= new GenericRepository<FlashSaleItem>(_context);
-    public IGenericRepository<Cart> Carts => _carts ??= new GenericRepository<Cart>(_context);
-    public IGenericRepository<CartItem> CartItems => _cartItems ??= new GenericRepository<CartItem>(_context);
-    public IGenericRepository<Order> Orders => _orders ??= new GenericRepository<Order>(_context);
-    public IGenericRepository<OrderItem> OrderItems => _orderItems ??= new GenericRepository<OrderItem>(_context);
-    public IGenericRepository<Payment> Payments => _payments ??= new GenericRepository<Payment>(_context);
-    public IGenericRepository<User> Users => _users ??= new GenericRepository<User>(_context);
+    public ICategoryRepository Categories => _categories ??= new CategoryRepository(_context);
+    public IProductRepository Products => _products ??= new ProductRepository(_context);
+    public IProductVariantRepository ProductVariants => _productVariants ??= new ProductVariantRepository(_context);
+    public IProductImageRepository ProductImages => _productImages ??= new ProductImageRepository(_context);
+    public IFlashSaleRepository FlashSales => _flashSales ??= new FlashSaleRepository(_context);
+    public IFlashSaleItemRepository FlashSaleItems => _flashSaleItems ??= new FlashSaleItemRepository(_context);
+    public ICartRepository Carts => _carts ??= new CartRepository(_context);
+    public ICartItemRepository CartItems => _cartItems ??= new CartItemRepository(_context);
+    public IOrderRepository Orders => _orders ??= new OrderRepository(_context);
+    public IOrderItemRepository OrderItems => _orderItems ??= new OrderItemRepository(_context);
+    public IStockReservationRepository StockReservations => _stockReservations ??= new StockReservationRepository(_context);
+    public IPaymentRepository Payments => _payments ??= new PaymentRepository(_context);
+    public IUserRepository Users => _users ??= new UserRepository(_context);
+    public IWebhookLogRepository WebhookLogs => _webhookLogs ??= new WebhookLogRepository(_context);
+    public IAuditLogRepository AuditLogs => _auditLogs ??= new AuditLogRepository(_context);
 
     public async Task<int> SaveChangesAsync()
     {
@@ -49,6 +54,5 @@ public class UnitOfWork : IUnitOfWork
     public void Dispose()
     {
         _context.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

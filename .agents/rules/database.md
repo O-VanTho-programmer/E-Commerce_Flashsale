@@ -22,7 +22,7 @@ trigger: model_decision
 - **Migrations**: Migrations are generated and managed in the API or Infrastructure project, adhering to the Code-First approach.
 
 ## Repositories
-- Define Repository Interfaces in `ECommerce.Application/Interfaces`.
+- Define Repository Interfaces in `ECommerce.Application/Common/Interfaces/Repositories`.
 - Implement Repositories in `ECommerce.Infrastructure/Repositories`.
 - Avoid injecting `DbContext` directly into Application layer use cases (Commands/Queries); use the Repositories or a Unit of Work (if applicable) instead.
 

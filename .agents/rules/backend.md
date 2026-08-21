@@ -50,6 +50,13 @@ ECommerce.API             <- references Application + Infrastructure
 - Handlers must NOT call `DbContext` directly — always go through a Repository/UnitOfWork interface.
 - DTOs are returned to the API layer; Entities must NEVER be returned directly to a Controller.
 
+**Repositories (Data Access)**
+- Define Repository Interfaces in `ECommerce.Application/Common/Interfaces/Repositories`.
+- Implement Repositories in `ECommerce.Infrastructure/Repositories`.
+- **Repository Method Naming Rules**:
+  - For simple, one-off lookups with no `.Include()` and no specific business meaning, the generic `FirstOrDefaultAsync(predicate)` is fine.
+  - Anything reused across multiple Handlers, needs eager loading (`.Include()`), or represents a named business concept (e.g., "get active cart", "get pending orders for user") MUST be given a specific method name in a dedicated Repository interface (e.g., `ICartRepository.GetByUserIdWithItemsAsync()`).
+
 **`ECommerce.Infrastructure`**
 - Implements every interface defined in Application.
 - `ApplicationDbContext` implements `IApplicationDbContext`.
