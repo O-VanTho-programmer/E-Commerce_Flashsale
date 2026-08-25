@@ -79,6 +79,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Resul
             if (reservation != null && reservation.Status == StockReservationStatus.Reserved)
             {
                 reservation.UpdateStatus(StockReservationStatus.Confirmed);
+                reservation.LinkToOrder(order.Id);
             }
 
             // Remove from cart

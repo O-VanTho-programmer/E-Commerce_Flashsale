@@ -19,6 +19,11 @@ public class StockReservationConfiguration : IEntityTypeConfiguration<StockReser
         builder.HasOne(sr => sr.CartItem)
             .WithOne(ci => ci.StockReservation)
             .HasForeignKey<StockReservation>(sr => sr.CartItemId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne(sr => sr.Order)
+            .WithMany()
+            .HasForeignKey(sr => sr.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
