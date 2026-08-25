@@ -16,6 +16,8 @@ public class CartRepository : GenericRepository<ECommerce.Domain.Entities.Cart>,
     {
         return await _dbSet
             .Include(c => c.CartItems)
+                .ThenInclude(ci => ci.ProductVariant)
+                    .ThenInclude(pv => pv.Product)
             .FirstOrDefaultAsync(c => c.UserId == userId);
     }
 }

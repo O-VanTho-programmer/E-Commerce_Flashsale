@@ -32,7 +32,12 @@ public class Order : BaseEntity
 
     public void TransitionTo(Enums.OrderStatus newStatus)
     {
-        // Validation could be added here based on _allowedTransitions rule
+        if (Status == Enums.OrderStatus.Cancelled)
+            throw new Exception("Cannot change status of a cancelled order.");
+            
+        if (Status == Enums.OrderStatus.Confirmed && newStatus == Enums.OrderStatus.Pending)
+            throw new Exception("Cannot change a confirmed order back to pending.");
+
         Status = newStatus;
     }
 }

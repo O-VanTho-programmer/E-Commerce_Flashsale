@@ -15,16 +15,18 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result<
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDistributedLockService _lockService;
+    private readonly IInventoryService _inventoryService;
 
-    public AddToCartCommandHandler(IUnitOfWork unitOfWork, IDistributedLockService lockService)
+    public AddToCartCommandHandler(IUnitOfWork unitOfWork, IDistributedLockService lockService, IInventoryService inventoryService)
     {
         _unitOfWork = unitOfWork;
         _lockService = lockService;
+        _inventoryService = inventoryService;
     }
 
     public async Task<Result<int>> Handle(AddToCartCommand request, CancellationToken cancellationToken)
     {
-        // 1. If it's a Flash Sale, we must lock the specific Product Variant so no one else can touch it right now
+        // 1. If it's a Flash Sale, we must lock the specific Product Variant
         string lockKey = $"flashsale:lock:{request.ProductVariantId}";
         using var distributedLock = request.IsFlashSale 
             ? await _lockService.AcquireLockAsync(lockKey, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(1)) 
@@ -35,21 +37,29 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result<
             return Result<int>.Failure("System is busy. Too many people are trying to buy this item!");
         }
 
-        // 2. Find or create the user's Cart using our new specific method with Eager Loading!
+        // Find or create the user's Cart
         var cart = await _unitOfWork.Carts.GetByUserIdWithItemsAsync(request.UserId);
         
         if (cart == null)
         {
-            cart = new ECommerce.Domain.Entities.Cart(request.UserId);
+            cart = new Domain.Entities.Cart(request.UserId);
             await _unitOfWork.Carts.AddAsync(cart);
-            await _unitOfWork.SaveChangesAsync(); // Get Cart ID
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        // 3. Add Item to Cart
+        // Check Stock Quantity via Domain Service!
+        bool isAvailable = await _inventoryService.IsStockAvailableAsync(request.ProductVariantId, request.Quantity, request.IsFlashSale);
+
+        if (!isAvailable)
+        {
+            return Result<int>.Failure("Not enough stock available.");
+        }
+
+        // Add Item to Cart
         var cartItem = new CartItem(cart.Id, request.ProductVariantId, request.Quantity, request.IsFlashSale);
         await _unitOfWork.CartItems.AddAsync(cartItem);
 
-        // 4. Reserve the Stock!
+        // Reserve the Stock!
         if (request.IsFlashSale)
         {
             // Lock the inventory for 15 minutes so they can checkout

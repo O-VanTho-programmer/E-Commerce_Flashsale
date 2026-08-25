@@ -27,6 +27,7 @@ public static class DependencyInjection
         // Repositories
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IInventoryService, InventoryService>();
 
         // Redis
         var redisConfig = configuration.GetSection("Redis")["Configuration"];
