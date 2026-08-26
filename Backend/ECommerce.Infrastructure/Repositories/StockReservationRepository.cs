@@ -24,4 +24,11 @@ public class StockReservationRepository : GenericRepository<ECommerce.Domain.Ent
                   )
             .SumAsync(r => r.Quantity);
     }
+
+    public async Task<System.Collections.Generic.IEnumerable<ECommerce.Domain.Entities.StockReservation>> GetConfirmedReservationsByOrderIdAsync(int orderId)
+    {
+        return await _dbSet
+            .Where(r => r.OrderId == orderId && r.Status == Domain.Enums.StockReservationStatus.Confirmed)
+            .ToListAsync();
+    }
 }

@@ -26,10 +26,10 @@
 ## Phase 3: Application (Use Cases & Business Logic)
 - [x] Implement CQRS (Commands/Queries) for Catalog (CRUD).
 - [x] Implement CQRS for Cart (Add, Remove).
-- [ ] Implement CQRS for Cart (Calculate Total).
+- [x] Implement CQRS for Cart (Calculate Total).
 - [ ] Implement CQRS for Flash Sale Management.
 - [ ] Implement Inventory Reservation logic (using Redis Distributed Lock).
-- [ ] Implement Order placement and status tracking.
+- [x] Implement Order placement and status tracking.
 - [ ] Implement Auth logic (Login, JWT generation).
 
 ## Phase 4: API & Integration

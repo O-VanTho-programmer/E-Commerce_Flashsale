@@ -4,7 +4,6 @@ using ECommerce.Application.Common.Interfaces.Repositories;
 using ECommerce.Application.Common.Models;
 using ECommerce.Domain.Enums;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Application.Orders.Commands.CancelOrder;
 
@@ -38,9 +37,7 @@ public class CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, Res
         }
 
         // Release any Confirmed stock reservations linked to this order
-        var reservations = await _unitOfWork.StockReservations
-            .Where(r => r.OrderId == order.Id && r.Status == StockReservationStatus.Confirmed)
-            .ToListAsync(cancellationToken);
+        var reservations = await _unitOfWork.StockReservations.GetConfirmedReservationsByOrderIdAsync(order.Id);
 
         foreach (var reservation in reservations)
         {
