@@ -17,7 +17,7 @@ public class InventoryService : IInventoryService
     {
         int activeReservations = await _unitOfWork.StockReservations.GetActiveReservationsQuantityAsync(productVariantId);
 
-        //j Check Flash Sale Stock
+        //Check Flash Sale Stock
         if (isFlashSale)
         {
             var flashSaleItem = await _unitOfWork.FlashSaleItems.FirstOrDefaultAsync(f => f.ProductVariantId == productVariantId);

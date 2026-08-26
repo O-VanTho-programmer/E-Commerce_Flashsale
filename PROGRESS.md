@@ -27,8 +27,8 @@
 - [x] Implement CQRS (Commands/Queries) for Catalog (CRUD).
 - [x] Implement CQRS for Cart (Add, Remove).
 - [x] Implement CQRS for Cart (Calculate Total).
-- [ ] Implement CQRS for Flash Sale Management.
-- [ ] Implement Inventory Reservation logic (using Redis Distributed Lock).
+- [x] Implement CQRS for Flash Sale Management.
+- [x] Implement Inventory Reservation logic (using Redis Distributed Lock).
 - [x] Implement Order placement and status tracking.
 - [ ] Implement Auth logic (Login, JWT generation).
 
