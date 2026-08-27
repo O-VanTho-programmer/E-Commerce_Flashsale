@@ -25,6 +25,8 @@ public class AppDbContext : DbContext
     public DbSet<WebhookLog> WebhookLogs { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+    public DbSet<ChannelStockAllocation> ChannelStockAllocations { get; set; } = null!;
+    public DbSet<ExternalOrderSyncLog> ExternalOrderSyncLogs { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

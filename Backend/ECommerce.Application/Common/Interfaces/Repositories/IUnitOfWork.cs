@@ -20,6 +20,8 @@ public interface IUnitOfWork : IDisposable
     IUserRepository Users { get; }
     IWebhookLogRepository WebhookLogs { get; }
     IAuditLogRepository AuditLogs { get; }
+    IChannelStockAllocationRepository ChannelStockAllocations { get; }
+    IExternalOrderSyncLogRepository ExternalOrderSyncLogs { get; }
     
     Task<int> SaveChangesAsync();
 }

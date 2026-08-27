@@ -45,6 +45,12 @@ public class UnitOfWork : IUnitOfWork
     public IUserRepository Users => _users ??= new UserRepository(_context);
     public IWebhookLogRepository WebhookLogs => _webhookLogs ??= new WebhookLogRepository(_context);
     public IAuditLogRepository AuditLogs => _auditLogs ??= new AuditLogRepository(_context);
+    
+    private IChannelStockAllocationRepository? _channelStockAllocations;
+    public IChannelStockAllocationRepository ChannelStockAllocations => _channelStockAllocations ??= new ChannelStockAllocationRepository(_context);
+    
+    private IExternalOrderSyncLogRepository? _externalOrderSyncLogs;
+    public IExternalOrderSyncLogRepository ExternalOrderSyncLogs => _externalOrderSyncLogs ??= new ExternalOrderSyncLogRepository(_context);
 
     public async Task<int> SaveChangesAsync()
     {

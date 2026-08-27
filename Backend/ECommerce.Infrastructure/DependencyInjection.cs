@@ -29,6 +29,10 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IInventoryService, InventoryService>();
 
+        // Auth Services
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
         // Redis
         var redisConfig = configuration.GetSection("Redis")["Configuration"];
         if (!string.IsNullOrEmpty(redisConfig))

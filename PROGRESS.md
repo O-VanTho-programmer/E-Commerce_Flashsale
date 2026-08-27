@@ -30,13 +30,17 @@
 - [x] Implement CQRS for Flash Sale Management.
 - [x] Implement Inventory Reservation logic (using Redis Distributed Lock).
 - [x] Implement Order placement and status tracking.
-- [ ] Implement Auth logic (Login, JWT generation).
+- [x] Implement Auth logic (Login, JWT generation).
 
 ## Phase 4: API & Integration
 - [ ] Set up Controllers for Catalog, Cart, Order, Auth, FlashSale.
-- [ ] Integrate Swagger, JWT Authentication Middleware, and Versioning.
-- [ ] Configure RabbitMQ via MassTransit for async inventory deduction and notifications.
+- [ ] Implement Omni-Channel Webhook Controller (Shopee/External integration).
+- [ ] Configure Swagger with JWT Auth.
+- [ ] Implement MassTransit/RabbitMQ for background stock deduction.
 - [ ] Implement Payment Webhook (Idempotent handling).
+
+## Architecture Decisions Record (ADR)
+- **Omni-Channel Stock Sync (Shopee Integration)**: We chose an **Allocated Channel Model** (`ChannelStockAllocation`). Instead of external platforms drawing from our central `StockQuantity` (which could cause overselling if multiple platforms sell the exact same physical item simultaneously), we allocate a dedicated bucket of stock to each platform (e.g., 20 to Shopee). When a Shopee webhook fires, we passively record the deduction from Shopee's dedicated bucket. This guarantees zero overselling and requires zero real-time bidirectional API calls.
 
 ## Phase 5: Testing & Polish
 - [ ] Write Unit Tests with xUnit, Moq, FluentAssertions.

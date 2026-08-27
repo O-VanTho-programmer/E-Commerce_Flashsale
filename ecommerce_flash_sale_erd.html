@@ -29,6 +29,7 @@ const { svg } = await mermaid.render('erd-svg', `erDiagram
   PRODUCT ||--o{ PRODUCT_VARIANT : has
   PRODUCT ||--o{ PRODUCT_IMAGE : has
   PRODUCT_VARIANT ||--o| FLASH_SALE_ITEM : "on sale"
+  PRODUCT_VARIANT ||--o{ CHANNEL_STOCK_ALLOCATION : "allocated to"
   FLASH_SALE ||--o{ FLASH_SALE_ITEM : includes
   USER ||--o| CART : owns
   CART ||--o{ CART_ITEM : contains
@@ -155,6 +156,23 @@ const { svg } = await mermaid.render('erd-svg', `erDiagram
     string OldValues
     string NewValues
     datetime Timestamp
+  }
+  CHANNEL_STOCK_ALLOCATION {
+    int Id PK
+    int ProductVariantId FK
+    string PlatformName
+    int AllocatedQuantity
+    int SoldQuantity
+    rowversion RowVersion
+  }
+  EXTERNAL_ORDER_SYNC_LOG {
+    int Id PK
+    string PlatformName
+    string ExternalOrderId
+    string Status
+    string Payload
+    datetime ProcessedAt
+  }
   }`);
 document.getElementById('erd').innerHTML = svg;
 
