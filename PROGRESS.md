@@ -43,5 +43,5 @@
 - **Omni-Channel Stock Sync (Shopee Integration)**: We chose an **Allocated Channel Model** (`ChannelStockAllocation`). Instead of external platforms drawing from our central `StockQuantity` (which could cause overselling if multiple platforms sell the exact same physical item simultaneously), we allocate a dedicated bucket of stock to each platform (e.g., 20 to Shopee). When a Shopee webhook fires, we passively record the deduction from Shopee's dedicated bucket. This guarantees zero overselling and requires zero real-time bidirectional API calls.
 
 ## Phase 5: Testing & Polish
-- [ ] Write Unit Tests with xUnit, Moq, FluentAssertions.
+- [x] Write Unit Tests with xUnit, Moq, FluentAssertions.
 - [ ] Write Integration Tests using Testcontainers (MsSql, Redis).
