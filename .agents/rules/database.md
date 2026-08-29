@@ -29,7 +29,7 @@ trigger: model_decision
 ## Performance & Concurrency
 - **Asynchronous Data Access**: Always use `async` / `await` and EF Core's async methods (e.g., `ToListAsync()`, `FirstOrDefaultAsync()`).
 - **No Tracking for Read-Only**: Use `.AsNoTracking()` for queries that do not require updating the entities.
-- **Concurrency**: Use `RowVersion` (`rowversion` in SQL Server) for optimistic concurrency control (e.g., for `PRODUCT_VARIANT`, `FLASH_SALE_ITEM`, `ORDER`).
+- **Concurrency**: Use `RowVersion` (`rowversion` in SQL Server) for optimistic concurrency control (e.g., for `PRODUCT_VARIANT`, `FLASH_SALE_ITEM`, `ORDER`, `CHANNEL_STOCK_ALLOCATION`).
 
 ## Redis Usage
 - **Distributed Lock**: Use `RedLock.net` to handle race conditions (e.g., inventory reservation during a Flash Sale).

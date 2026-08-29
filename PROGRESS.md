@@ -33,14 +33,15 @@
 - [x] Implement Auth logic (Login, JWT generation).
 
 ## Phase 4: API & Integration
-- [ ] Set up Controllers for Catalog, Cart, Order, Auth, FlashSale.
-- [ ] Implement Omni-Channel Webhook Controller (Shopee/External integration).
-- [ ] Configure Swagger with JWT Auth.
-- [ ] Implement MassTransit/RabbitMQ for background stock deduction.
-- [ ] Implement Payment Webhook (Idempotent handling).
+- [x] Set up Controllers for Catalog, Cart, Order, Auth, FlashSale.
+- [x] Implement Omni-Channel Webhook Controller (Shopee/External integration).
+- [x] Configure Swagger with JWT Auth.
+- [x] Implement MassTransit/RabbitMQ for background stock deduction.
+- [x] Implement Payment Webhook (Idempotent handling).
 
 ## Architecture Decisions Record (ADR)
-- **Omni-Channel Stock Sync (Shopee Integration)**: We chose an **Allocated Channel Model** (`ChannelStockAllocation`). Instead of external platforms drawing from our central `StockQuantity` (which could cause overselling if multiple platforms sell the exact same physical item simultaneously), we allocate a dedicated bucket of stock to each platform (e.g., 20 to Shopee). When a Shopee webhook fires, we passively record the deduction from Shopee's dedicated bucket. This guarantees zero overselling and requires zero real-time bidirectional API calls.
+See full details in [`DECISION.md`](file:///d:/MyProgramme/E-Commerce_Flashsale/DECISION.md).
+- **Omni-Channel Stock Sync (Shopee Integration)**: We chose an **Allocated Channel Model** (`ChannelStockAllocation`). Dedicated stock buckets per platform to eliminate race conditions and remove the need for real-time bi-directional API stock sync.
 
 ## Phase 5: Testing & Polish
 - [x] Write Unit Tests with xUnit, Moq, FluentAssertions.

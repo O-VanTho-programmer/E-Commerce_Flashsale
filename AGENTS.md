@@ -12,12 +12,13 @@
 | **Order** | Create order, track status, cancel order |
 | **Payment (Mock)** | Mock webhook for payment confirmation, idempotent |
 | **Auth** | Registration/login, JWT, Admin/Customer role authorization |
+| **Omni-Channel** | Process external webhooks (Shopee/Lazada), idempotent sync, channel stock allocation |
 
 ### Technical Scope
 - **Database**: Use only 1 main database, which is **SQL Server**.
 - **Caching & Lock**: Use **Redis** for Distributed Cache and Reservation Lock (not as the primary DB).
-- **Architecture Pattern**: Apply **Clean Architecture** as a **Modular Monolith** in 1 Solution (no real Microservices to avoid deployment complexity).
-- **Message Broker**: Use **RabbitMQ** centralized for 2 async workflows: 
+- **Architecture Pattern**: Apply **Clean Architecture** as a **Modular Monolith** in 1 Solution.
+- **Message Broker**: Use **MassTransit** (configured for AWS SQS/SNS on AWS or RabbitMQ/In-Memory locally) for async workflows: 
   - Stock deduction (inventory) after order confirmation.
   - Send email/notification.
 
@@ -26,7 +27,7 @@
 - **Frontend**: Next.js (calls API via REST)
 - **Database**: SQL Server
 - **Caching & Distributed Lock**: Redis
-- **Message Broker**: RabbitMQ
+- **Message Broker**: AWS SQS / SNS (or RabbitMQ via MassTransit)
 - **Architecture Design**: Modular Monolith, Clean Architecture
 
 ### Backend Core
@@ -37,7 +38,7 @@
 | **Database** | SQL Server (LocalDB for dev, real SQL Server for deploy) | |
 | **ORM** | Entity Framework Core 8 | Code-First + Migrations |
 | **Cache & Distributed Lock** | Redis | StackExchange.Redis |
-| **Message Queue** | RabbitMQ | via MassTransit (Phase 4) |
+| **Message Queue** | AWS SQS/SNS or RabbitMQ | via MassTransit |
 
 ### NuGet Packages per layer
 
@@ -47,7 +48,6 @@
 **ECommerce.Application**
 - `MediatR` — CQRS pattern
 - `FluentValidation.DependencyInjectionExtensions` — validate input
-- `AutoMapper.Extensions.Microsoft.DependencyInjection` — map Entity ↔ DTO
 - `MediatR.Extensions.Microsoft.DependencyInjection`
 
 **ECommerce.Infrastructure**
@@ -56,9 +56,10 @@
 - `StackExchange.Redis` — cache + reservation
 - `RedLock.net` — Redis Distributed Lock
 - `MassTransit`
-- `MassTransit.RabbitMQ`
+- `MassTransit.AmazonSQS` / `MassTransit.RabbitMQ`
+- `BCrypt.Net-Next` — Password Hashing
+- `System.IdentityModel.Tokens.Jwt` — JWT Token Generation
 - `Serilog.AspNetCore`
-- `Serilog.Sinks.Seq` (or `Serilog.Sinks.File`)
 
 **ECommerce.API (E-commerce_FlashSale_Engine)**
 - `Microsoft.EntityFrameworkCore.Design` — run migrations
@@ -66,7 +67,7 @@
 - `Microsoft.AspNetCore.Authentication.JwtBearer` — JWT auth
 - `Asp.Versioning.Mvc` — API versioning
 
-**Test Projects** (To be added after creating Test project)
+**Test Projects**
 - `xUnit`
 - `Moq`
 - `FluentAssertions`
@@ -83,6 +84,7 @@ erDiagram
   PRODUCT ||--o{ PRODUCT_VARIANT : has
   PRODUCT ||--o{ PRODUCT_IMAGE : has
   PRODUCT_VARIANT ||--o| FLASH_SALE_ITEM : "on sale"
+  PRODUCT_VARIANT ||--o{ CHANNEL_STOCK_ALLOCATION : "allocated to"
   FLASH_SALE ||--o{ FLASH_SALE_ITEM : includes
   USER ||--o| CART : owns
   CART ||--o{ CART_ITEM : contains
@@ -209,5 +211,21 @@ erDiagram
     string OldValues
     string NewValues
     datetime Timestamp
+  }
+  CHANNEL_STOCK_ALLOCATION {
+    int Id PK
+    int ProductVariantId FK
+    string PlatformName
+    int AllocatedQuantity
+    int SoldQuantity
+    rowversion RowVersion
+  }
+  EXTERNAL_ORDER_SYNC_LOG {
+    int Id PK
+    string PlatformName
+    string ExternalOrderId UK
+    string Status
+    string Payload
+    datetime ProcessedAt
   }
 ```
