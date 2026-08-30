@@ -19,7 +19,7 @@ public class FlashSaleRepository : GenericRepository<ECommerce.Domain.Entities.F
             .Include(f => f.FlashSaleItems)
                 .ThenInclude(fi => fi.ProductVariant)
                     .ThenInclude(pv => pv.Product)
-            .Where(f => f.StartAt <= now && f.EndAt >= now && f.Status != Domain.Enums.FlashSaleStatus.Cancelled)
+            .Where(f => f.StartAt <= now && f.EndAt >= now && f.Status == Domain.Enums.FlashSaleStatus.Active)
             .FirstOrDefaultAsync();
     }
 }

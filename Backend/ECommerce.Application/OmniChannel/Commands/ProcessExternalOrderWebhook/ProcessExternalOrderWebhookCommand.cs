@@ -27,17 +27,14 @@ public class ProcessExternalOrderWebhookCommandHandler : IRequestHandler<Process
 
     public async Task<Result<bool>> Handle(ProcessExternalOrderWebhookCommand request, CancellationToken cancellationToken)
     {
-        // 1. Idempotency Check
+        // Idempotency Check
         var existingLog = await _unitOfWork.ExternalOrderSyncLogs.GetByExternalOrderIdAsync(request.PlatformName, request.ExternalOrderId);
         if (existingLog != null)
         {
-            // Already processed, return success to prevent webhook retries
             return Result<bool>.Success(true);
         }
 
-        // 2. Find internal product variant by SKU
-        // Note: For simplicity, we assume we have a repository method to get by SKU, or we query it.
-        // Since we don't have GetBySkuAsync yet, let's just query via GenericRepository
+        // Find internal product variant by SKU
         var variant = await _unitOfWork.ProductVariants.FirstOrDefaultAsync(v => v.Sku == request.Sku);
         
         if (variant == null)
@@ -49,7 +46,7 @@ public class ProcessExternalOrderWebhookCommandHandler : IRequestHandler<Process
             return Result<bool>.Success(false); 
         }
 
-        // 3. Find Channel Allocation
+        // Find Channel Allocation
         var allocation = await _unitOfWork.ChannelStockAllocations.GetAllocationAsync(variant.Id, request.PlatformName);
         
         if (allocation == null)
@@ -61,15 +58,15 @@ public class ProcessExternalOrderWebhookCommandHandler : IRequestHandler<Process
             return Result<bool>.Success(false);
         }
 
-        // 4. Deduct allocated stock (Passive Recording)
+        // Deduct allocated stock (Passive Recording)
         allocation.RecordSale(request.Quantity);
 
-        // 5. Create Success Log
+        // Create Success Log
         var successLog = new ExternalOrderSyncLog(request.PlatformName, request.ExternalOrderId, "Processed", request.RawPayload);
         
         await _unitOfWork.ExternalOrderSyncLogs.AddAsync(successLog);
         
-        // 6. Commit Transaction
+        // Commit Transaction
         await _unitOfWork.SaveChangesAsync();
 
         return Result<bool>.Success(true);
