@@ -63,3 +63,11 @@ This document serves as the definitive record of key architectural decisions, de
 - **Reason**: 
   - Decouples Web API Controllers from application business rules.
   - Explicit `.Select()` projections generate clean, optimized SQL queries (fetching only required columns) without the hidden performance overhead or runtime mapping errors of AutoMapper.
+
+---
+
+## 10. Reliable Messaging: Transactional Outbox Pattern
+- **Decision**: Implemented the Transactional Outbox Pattern using MassTransit's Entity Framework Core integration for all message publishing.
+- **Reason**: 
+  - Prevents the "Dual-Write" problem where a database transaction succeeds but publishing the event to the message broker fails (or vice versa).
+  - Guarantees at-least-once delivery of events (e.g., `OrderPlacedEvent`) to the broker without requiring complex manual polling or custom outbox tables.

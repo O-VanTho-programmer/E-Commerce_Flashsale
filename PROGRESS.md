@@ -36,7 +36,7 @@
 - [x] Set up Controllers for Catalog, Cart, Order, Auth, FlashSale.
 - [x] Implement Omni-Channel Webhook Controller (Shopee/External integration).
 - [x] Configure Swagger with JWT Auth.
-- [ ] Implement MassTransit/RabbitMQ for background stock deduction.
+- [x] Implement MassTransit/RabbitMQ for background stock deduction.
 - [x] Implement Payment Webhook (Idempotent handling).
 
 ## Architecture Decisions Record (ADR)

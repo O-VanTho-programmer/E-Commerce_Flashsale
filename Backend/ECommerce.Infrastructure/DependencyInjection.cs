@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Net;
 using ECommerce.Application.Common.Interfaces.Repositories;
 using ECommerce.Application.Common.Interfaces.Services;
 using ECommerce.Infrastructure.Data;
+using ECommerce.Infrastructure.Messaging;
 using ECommerce.Infrastructure.Repositories;
+using MassTransit;
 using ECommerce.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -50,6 +49,25 @@ public static class DependencyInjection
             services.AddSingleton<IDistributedLockFactory>(redLockFactory);
             services.AddScoped<IDistributedLockService, RedLockService>();
         }
+
+        // Messaging
+        services.AddScoped<IEventPublisher, EventPublisher>();
+
+        services.AddMassTransit(x =>
+        {
+            x.AddEntityFrameworkOutbox<AppDbContext>(o =>
+            {
+                o.UseSqlServer();
+                o.UseBusOutbox();
+            });
+
+            x.SetKebabCaseEndpointNameFormatter();
+
+            x.UsingInMemory((context, cfg) =>
+            {
+                cfg.ConfigureEndpoints(context);
+            });
+        });
 
         return services;
     }

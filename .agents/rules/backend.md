@@ -49,6 +49,7 @@ ECommerce.API             <- references Application + Infrastructure
 - FluentValidation validators sit next to their Command, named `{CommandName}Validator.cs`.
 - Handlers must NOT call `DbContext` directly — always go through a Repository/UnitOfWork interface.
 - DTOs are returned to the API layer; Entities must NEVER be returned directly to a Controller.
+- **Dependency Inversion for Messaging**: Do NOT inject MassTransit's `IPublishEndpoint` directly into the Application layer. Create an abstraction (e.g., `IEventPublisher`) in `Application/Common/Interfaces` to keep the Application layer completely ignorant of the message broker implementation.
 
 **Repositories (Data Access)**
 - Define Repository Interfaces in `ECommerce.Application/Common/Interfaces/Repositories`.
@@ -62,6 +63,7 @@ ECommerce.API             <- references Application + Infrastructure
 - `ApplicationDbContext` implements `IApplicationDbContext`.
 - Entity configuration uses separate Fluent API files: `Infrastructure/Persistence/Configurations/{EntityName}Configuration.cs`, implementing `IEntityTypeConfiguration<T>`. Do NOT configure via Data Annotations on the entity.
 - The `RowVersion` column is mapped with `.IsRowVersion()` in Fluent API.
+- **Messaging Implementation**: Implement `IEventPublisher` here (e.g., wrapping MassTransit). All MassTransit configurations, including Outbox setup, MUST reside in `DependencyInjection.cs` of the Infrastructure project, never leaking into the API project's `Program.cs`.
 
 **`ECommerce.API`**
 - Controllers only call `IMediator.Send()`/`Publish()` — no business logic in Controllers.

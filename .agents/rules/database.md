@@ -34,3 +34,8 @@ trigger: model_decision
 ## Redis Usage
 - **Distributed Lock**: Use `RedLock.net` to handle race conditions (e.g., inventory reservation during a Flash Sale).
 - **Caching**: Use `StackExchange.Redis` for read-heavy operations.
+
+## Transactional Outbox & Reliable Messaging
+- **Outbox Pattern**: Use MassTransit's Entity Framework Core Outbox integration for reliable message publishing.
+- **Implementation**: Call `modelBuilder.AddInboxStateEntity()`, `modelBuilder.AddOutboxMessageEntity()`, and `modelBuilder.AddOutboxStateEntity()` in `AppDbContext.OnModelCreating`.
+- **Publishing**: When publishing events from a Command Handler, always publish BEFORE calling `_unitOfWork.SaveChangesAsync()` so the event is written to the Outbox table in the same database transaction.

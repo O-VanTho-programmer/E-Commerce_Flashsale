@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ECommerce.Application.Common.Events;
 using ECommerce.Application.Common.Interfaces.Repositories;
 using ECommerce.Application.Common.Interfaces.Services;
 using ECommerce.Application.Common.Models;
@@ -17,11 +18,14 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Resul
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IInventoryService _inventoryService;
+    private readonly IEventPublisher _eventPublisher;
 
-    public PlaceOrderCommandHandler(IUnitOfWork unitOfWork, IInventoryService inventoryService)
+    public PlaceOrderCommandHandler(IUnitOfWork unitOfWork, IInventoryService inventoryService, IEventPublisher eventPublisher)
     {
         _unitOfWork = unitOfWork;
         _inventoryService = inventoryService;
+        _eventPublisher = eventPublisher;
+
     }
 
     public async Task<Result<int>> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
@@ -62,7 +66,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Resul
         await _unitOfWork.Orders.AddAsync(order);
         await _unitOfWork.SaveChangesAsync(); // Get Order Id
 
-        // 4. Create OrderItems and Update Reservations
+        // 4. Create OrderItems and EventItems and Update Reservations
+
+        List<OrderPlacedEventItem> eventItems = new();
+
         foreach (var cartItem in cart.CartItems)
         {
             decimal unitPrice = cartItem.ProductVariant?.Price ?? 0;
@@ -75,6 +82,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Resul
             var orderItem = new OrderItem(order.Id, cartItem.ProductVariantId, cartItem.Quantity, unitPrice);
             await _unitOfWork.OrderItems.AddAsync(orderItem);
 
+            // Add Event OrderItem
+            eventItems.Add(new OrderPlacedEventItem(cartItem.ProductVariantId, cartItem.Quantity));
+
             var reservation = await _unitOfWork.StockReservations.FirstOrDefaultAsync(r => r.CartItemId == cartItem.Id);
             if (reservation != null && reservation.Status == StockReservationStatus.Reserved)
             {
@@ -85,6 +95,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Resul
             // Remove from cart
             _unitOfWork.CartItems.Delete(cartItem);
         }
+
+        await _eventPublisher.PublishAsync(new OrderPlacedEvent(order.Id, order.UserId, eventItems), cancellationToken);
 
         await _unitOfWork.SaveChangesAsync();
 

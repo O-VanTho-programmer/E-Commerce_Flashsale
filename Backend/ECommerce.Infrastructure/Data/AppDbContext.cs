@@ -1,5 +1,6 @@
 using System.Reflection;
 using ECommerce.Domain.Entities;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Data;
@@ -34,5 +35,9 @@ public class AppDbContext : DbContext
         
         // Apply all configurations defined in the Infrastructure assembly
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
     }
 }
