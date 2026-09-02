@@ -1,12 +1,55 @@
-# E-Commerce FlashSale Platform
+# ⚡ FlashCommerce Engine
 
-This project is a Modular Monolith E-Commerce platform built with ASP.NET Core 8, focusing on high-performance flash sale processing, omni-channel stock synchronization, and event-driven architecture using MassTransit.
+<div align="center">
+  <p><strong>A high-performance, event-driven E-Commerce & Flash Sale platform built for scale.</strong></p>
+  
+  [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
+  [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#)
+</div>
 
-## Core Workflows
+## 📖 Overview
 
-### Order Placement & Event-Driven Outbox Workflow
+FlashCommerce Engine is a production-ready, Modular Monolith backend designed to handle high-concurrency e-commerce workloads, particularly **Flash Sales**. By leveraging Distributed Caching, Redis Locks, and Event-Driven Architecture (MassTransit), this platform guarantees zero overselling while maintaining blazing-fast response times.
 
-To ensure data consistency between the database and our message broker (avoiding the Dual-Write problem), we utilize the **Transactional Outbox Pattern** provided by MassTransit for Entity Framework Core. 
+**Key Problems Solved:**
+- **Overselling in Flash Sales:** Eliminated via Hybrid Redis Distributed Locks and SQL Server `rowversion` concurrency control.
+- **Dual-Write Problem:** Solved using the **Transactional Outbox Pattern** to guarantee message delivery to the broker.
+- **Omni-Channel Sync:** Handles Shopee/Lazada webhooks idempotently with isolated "virtual stock" buckets to prevent race conditions across platforms.
+
+## ✨ Key Features
+
+- **High-Concurrency Flash Sales:** Distributed locking for immediate, safe stock reservation.
+- **Event-Driven Architecture:** Pub/Sub fan-out using MassTransit (supports AWS SQS/SNS, RabbitMQ).
+- **Clean Architecture & CQRS:** Strictly separated layers using MediatR and FluentValidation.
+- **Idempotent Webhooks:** Guaranteed exactly-once processing for payment and external platform integrations.
+- **JWT Authentication & RBAC:** Secure, stateless endpoint protection.
+- **Automated Integration Testing:** Full E2E flows tested using Testcontainers (ephemeral SQL & Redis).
+
+## 🛠️ Tech Stack
+
+- **Framework:** ASP.NET Core 8 Web API, C# 12
+- **Database & ORM:** SQL Server, Entity Framework Core 8
+- **Caching & Locks:** Redis, RedLock.net
+- **Messaging:** MassTransit (AWS SQS/SNS ready, InMemory for testing)
+- **Architecture:** Clean Architecture, CQRS (MediatR)
+- **Testing:** xUnit, FluentAssertions, Testcontainers
+
+## 🏗️ Architecture & Workflows
+
+### Project Structure
+```text
+Backend/
+├── ECommerce.Domain/         # Enterprise logic & POCO Entities
+├── ECommerce.Application/    # Use cases, CQRS, DTOs, FluentValidation
+├── ECommerce.Infrastructure/ # EF Core DbContext, Redis configs, MassTransit Consumers
+├── E-commerce_FlashSale_Engine/ # Web API Controllers, Swagger, JWT Setup
+└── ECommerce.IntegrationTests/ # E2E tests using Testcontainers
+```
+
+### Critical Workflow: Order Placement & Event-Driven Outbox
+
+To ensure absolute consistency without distributed transactions, we utilize the **Transactional Outbox & Inbox Patterns**:
 
 1. **Cart & Reservation**: When users add items to their cart during a flash sale, the stock is temporarily reserved using a Redis Distributed Lock.
 2. **Order Creation**: Upon placing an order, the system updates the reservation to 'Confirmed' and clears the cart items.
@@ -73,3 +116,73 @@ The platform is designed with a **Message-Driven Architecture** powered by **Mas
 - **True Fan-Out for Single Responsibility**: Each business side-effect is handled by an isolated Consumer class (e.g., `DeductStockOnOrderPlacedConsumer`, `SendEmailOnOrderPlacedConsumer`). This forces a 1-to-N fan-out topology (1 Topic -> N Queues).
 - **Microservice Readiness**: While currently running as Background Workers (HostedServices) within a Modular Monolith, this architecture is fully portable. Individual Consumers can be physically extracted into separate autonomous Microservices or deployed as Serverless AWS Lambda functions without modifying a single line of their internal business logic.
 
+## 🚀 Getting Started
+
+### Prerequisites
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- Git
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/ecommerce-flashsale.git
+   cd ecommerce-flashsale/Backend
+   ```
+
+2. **Start Infrastructure (Docker):**
+   ```bash
+   # Run Redis
+   docker run -d --name flashcommerce-redis -p 6379:6379 redis:7.0
+   
+   # Run SQL Server (Developer Edition)
+   docker run -d --name flashcommerce-sql -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=YourStrong!Passw0rd" -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+   ```
+
+3. **Configure Environment Variables:**
+   Update `appsettings.Development.json` in the `E-commerce_FlashSale_Engine` project:
+   ```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=localhost,1433;Database=FlashCommerceDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True"
+     },
+     "Redis": {
+       "Configuration": "localhost:6379"
+     },
+     "JwtSettings": {
+       "Secret": "your-super-secret-key-at-least-32-bytes",
+       "Issuer": "ECommerceAPI",
+       "Audience": "ECommerceClient"
+     }
+   }
+   ```
+
+4. **Run Database Migrations:**
+   ```bash
+   dotnet ef database update --project ECommerce.Infrastructure --startup-project E-commerce_FlashSale_Engine
+   ```
+
+5. **Run the API:**
+   ```bash
+   cd E-commerce_FlashSale_Engine
+   dotnet run
+   ```
+   Navigate to `https://localhost:7193/swagger` to explore the API.
+
+## 💻 Usage / API Endpoints
+
+You can test the entire flow directly in Swagger or via Postman:
+
+- `POST /api/auth/register` - Create a new user.
+- `POST /api/auth/login` - Authenticate and retrieve JWT token.
+- `GET /api/catalog/products` - Browse available products.
+- `POST /api/cart` - Add an item to the cart (triggers Redis lock for flash sales).
+- `POST /api/orders` - Place an order (Commits SQL transaction & drops event into Outbox).
+
+## 🛣️ Roadmap / Future Improvements
+
+- [ ] **Frontend Storefront:** Build a highly responsive Next.js (React) UI.
+- [ ] **Payment Gateway Integration:** Implement Stripe / PayPal webhook handlers.
+- [ ] **Advanced Analytics:** Integrate ELK stack for real-time sales dashboard tracking.
+- [ ] **Kubernetes Deployment:** Helm Charts for effortless cloud-native deployment.

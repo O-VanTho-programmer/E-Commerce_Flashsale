@@ -71,17 +71,6 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Configure MassTransit (AWS SQS / RabbitMQ / InMemory provider)
-var brokerProvider = builder.Configuration["MessageBroker:Provider"] ?? "InMemory";
-builder.Services.AddMassTransit(x =>
-{
-    x.SetKebabCaseEndpointNameFormatter();
-
-    x.UsingInMemory((context, cfg) =>
-    {
-        cfg.ConfigureEndpoints(context);
-    });
-});
 
 var app = builder.Build();
 
@@ -103,3 +92,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

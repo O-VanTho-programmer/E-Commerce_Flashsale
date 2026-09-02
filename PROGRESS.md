@@ -45,4 +45,4 @@ See full details in [`DECISION.md`](file:///d:/MyProgramme/E-Commerce_Flashsale/
 
 ## Phase 5: Testing & Polish
 - [x] Write Unit Tests with xUnit, Moq, FluentAssertions.
-- [ ] Write Integration Tests using Testcontainers (MsSql, Redis).
+- [x] Write Integration Tests using Testcontainers (MsSql, Redis).

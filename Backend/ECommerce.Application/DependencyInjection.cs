@@ -22,6 +22,9 @@ public static class DependencyInjection
         // Register FluentValidation Validators
         services.AddValidatorsFromAssembly(assembly);
 
+        // Register AutoMapper
+        services.AddAutoMapper(cfg => { }, assembly);
+
         return services;
     }
 }
