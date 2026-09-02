@@ -71,3 +71,12 @@ This document serves as the definitive record of key architectural decisions, de
 - **Reason**: 
   - Prevents the "Dual-Write" problem where a database transaction succeeds but publishing the event to the message broker fails (or vice versa).
   - Guarantees at-least-once delivery of events (e.g., `OrderPlacedEvent`) to the broker without requiring complex manual polling or custom outbox tables.
+
+---
+
+## 11. Consumer Fan-out & Single Responsibility Principle (SRP)
+- **Decision**: Distinct business side-effects (e.g., Deducting Inventory, Sending Email) triggered by the same event (`OrderPlacedEvent`) are implemented as entirely independent Consumer classes (`DeductStockOnOrderPlacedConsumer`, `SendEmailOnOrderPlacedConsumer`).
+- **Reason**: 
+  - **Fault Isolation**: If the email service goes down, inventory deduction is not impacted. The broker will only retry the failed email queue.
+  - **Scalability**: Allows scaling consumers independently based on workload (e.g., more instances of inventory consumers than email consumers).
+  - **True Pub/Sub**: Leverages the broker's (SNS/RabbitMQ) natural fan-out capabilities to route one event to multiple independent subscriber queues.

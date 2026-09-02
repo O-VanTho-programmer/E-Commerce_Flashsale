@@ -50,11 +50,15 @@ public static class DependencyInjection
             services.AddScoped<IDistributedLockService, RedLockService>();
         }
 
-        // Messaging
+        // Messaging & Notifications
         services.AddScoped<IEventPublisher, EventPublisher>();
+        services.AddScoped<IEmailNotificationService, EmailNotificationService>();
 
         services.AddMassTransit(x =>
         {
+            x.AddConsumer<DeductStockOnOrderPlacedConsumer>();
+            x.AddConsumer<SendEmailOnOrderPlacedConsumer>();
+
             x.AddEntityFrameworkOutbox<AppDbContext>(o =>
             {
                 o.UseSqlServer();
@@ -63,12 +67,42 @@ public static class DependencyInjection
 
             x.SetKebabCaseEndpointNameFormatter();
 
-            x.UsingInMemory((context, cfg) =>
+            var brokerProvider = configuration["MessageBroker:Provider"] ?? "InMemory";
+
+            if (brokerProvider == "AmazonSqs")
             {
-                cfg.ConfigureEndpoints(context);
-            });
+                x.UsingAmazonSqs((context, cfg) =>
+                {
+                    cfg.Host(configuration["AWS:Region"] ?? "us-east-1", h =>
+                    {
+                        h.AccessKey(configuration["AWS:AccessKey"]);
+                        h.SecretKey(configuration["AWS:SecretKey"]);
+                    });
+                    cfg.ConfigureEndpoints(context);
+                });
+            }
+            else if (brokerProvider == "RabbitMq")
+            {
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(configuration["MessageBroker:RabbitMq:Host"] ?? "localhost", h =>
+                    {
+                        h.Username(configuration["MessageBroker:RabbitMq:Username"] ?? "guest");
+                        h.Password(configuration["MessageBroker:RabbitMq:Password"] ?? "guest");
+                    });
+                    cfg.ConfigureEndpoints(context);
+                });
+            }
+            else
+            {
+                x.UsingInMemory((context, cfg) =>
+                {
+                    cfg.ConfigureEndpoints(context);
+                });
+            }
         });
 
         return services;
     }
 }
+

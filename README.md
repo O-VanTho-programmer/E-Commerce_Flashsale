@@ -63,3 +63,13 @@ sequenceDiagram
         Consumer->>User: 17. Send Email Notification
     end
 ```
+
+### Message Broker Architecture & Microservices Scalability
+
+The platform is designed with a **Message-Driven Architecture** powered by **MassTransit**, making it highly decoupled and immediately ready to scale into a Microservices architecture if needed.
+
+- **Infrastructure Abstraction**: Application logic does not depend on any specific message broker. MassTransit provides a unified API, allowing seamless switching between **InMemory** (local development), **RabbitMQ** (on-premise/VM), or **AWS SQS/SNS** (cloud production) by changing a single configuration line.
+- **Pub/Sub and Auto-Provisioning**: When integrated with cloud-native services like AWS, the framework automatically maps Publisher events to **SNS Topics** and automatically provisions dedicated **SQS Queues** for each Consumer. It handles the subscription topology automatically upon startup.
+- **True Fan-Out for Single Responsibility**: Each business side-effect is handled by an isolated Consumer class (e.g., `DeductStockOnOrderPlacedConsumer`, `SendEmailOnOrderPlacedConsumer`). This forces a 1-to-N fan-out topology (1 Topic -> N Queues).
+- **Microservice Readiness**: While currently running as Background Workers (HostedServices) within a Modular Monolith, this architecture is fully portable. Individual Consumers can be physically extracted into separate autonomous Microservices or deployed as Serverless AWS Lambda functions without modifying a single line of their internal business logic.
+
