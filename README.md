@@ -47,6 +47,184 @@ Backend/
 └── ECommerce.IntegrationTests/ # E2E tests using Testcontainers
 ```
 
+### Database Entity-Relationship Diagram (ERD)
+
+```mermaid
+erDiagram
+  CATEGORY ||--o{ CATEGORY : "parent of"
+  CATEGORY ||--o{ PRODUCT : contains
+  PRODUCT ||--o{ PRODUCT_VARIANT : has
+  PRODUCT ||--o{ PRODUCT_IMAGE : has
+  PRODUCT_VARIANT ||--o| FLASH_SALE_ITEM : "on sale"
+  PRODUCT_VARIANT ||--o{ CHANNEL_STOCK_ALLOCATION : "allocated to"
+  FLASH_SALE ||--o{ FLASH_SALE_ITEM : includes
+  USER ||--o| CART : owns
+  CART ||--o{ CART_ITEM : contains
+  CART_ITEM }o--|| PRODUCT_VARIANT : references
+  CART_ITEM ||--o| STOCK_RESERVATION : holds
+  USER ||--o{ ORDER : places
+  ORDER ||--o{ ORDER_ITEM : contains
+  ORDER_ITEM }o--|| PRODUCT_VARIANT : references
+  ORDER ||--o| PAYMENT : "paid by"
+  PAYMENT ||--o{ WEBHOOK_LOG : "confirmed via"
+  USER ||--o{ AUDIT_LOG : generates
+
+  CATEGORY {
+    int Id PK
+    int ParentCategoryId FK
+    string Name
+    string Slug
+  }
+  PRODUCT {
+    int Id PK
+    int CategoryId FK
+    string Name
+    string Description
+    bool IsActive
+    datetime CreatedAt
+  }
+  PRODUCT_VARIANT {
+    int Id PK
+    int ProductId FK
+    string Sku
+    string Color
+    string Size
+    decimal Price
+    int StockQuantity
+    rowversion RowVersion
+  }
+  PRODUCT_IMAGE {
+    int Id PK
+    int ProductId FK
+    string Url
+    int SortOrder
+  }
+  FLASH_SALE {
+    int Id PK
+    string Name
+    datetime StartAt
+    datetime EndAt
+    string Status
+  }
+  FLASH_SALE_ITEM {
+    int Id PK
+    int FlashSaleId FK
+    int ProductVariantId FK
+    decimal SalePrice
+    int SaleStock
+    int SoldCount
+    rowversion RowVersion
+  }
+  USER {
+    int Id PK
+    string Email
+    string PasswordHash
+    string Role
+    datetime CreatedAt
+  }
+  CART {
+    int Id PK
+    int UserId FK
+    datetime UpdatedAt
+  }
+  CART_ITEM {
+    int Id PK
+    int CartId FK
+    int ProductVariantId FK
+    int Quantity
+    bool IsFlashSale
+  }
+  STOCK_RESERVATION {
+    int Id PK
+    int CartItemId FK
+    int ProductVariantId FK
+    int Quantity
+    datetime ExpiresAt
+    string Status
+  }
+  ORDER {
+    int Id PK
+    int UserId FK
+    string OrderCode
+    string Status
+    decimal TotalAmount
+    datetime CreatedAt
+    rowversion RowVersion
+  }
+  ORDER_ITEM {
+    int Id PK
+    int OrderId FK
+    int ProductVariantId FK
+    int Quantity
+    decimal UnitPrice
+  }
+  PAYMENT {
+    int Id PK
+    int OrderId FK
+    string Provider
+    string Status
+    decimal Amount
+    datetime PaidAt
+  }
+  WEBHOOK_LOG {
+    int Id PK
+    int PaymentId FK
+    string WebhookEventId UK
+    string Payload
+    string ProcessStatus
+    datetime ReceivedAt
+  }
+  AUDIT_LOG {
+    int Id PK
+    int UserId FK
+    string EntityName
+    string EntityId
+    string Action
+    string OldValues
+    string NewValues
+    datetime Timestamp
+  }
+  CHANNEL_STOCK_ALLOCATION {
+    int Id PK
+    int ProductVariantId FK
+    string PlatformName
+    int AllocatedQuantity
+    int SoldQuantity
+    rowversion RowVersion
+  }
+  EXTERNAL_ORDER_SYNC_LOG {
+    int Id PK
+    string PlatformName
+    string ExternalOrderId UK
+    string Status
+    string Payload
+    datetime ProcessedAt
+  }
+  OUTBOX_MESSAGE {
+    long SequenceNumber PK
+    guid MessageId
+    string DestinationAddress
+    datetime EnqueueTime
+    datetime ExpirationTime
+    string Body
+  }
+  OUTBOX_STATE {
+    guid OutboxId PK
+    guid LockId
+    datetime Created
+    datetime Delivered
+    int DeliveryCount
+  }
+  INBOX_STATE {
+    long Id PK
+    guid MessageId UK
+    guid ConsumerId UK
+    datetime Received
+    datetime Delivered
+    int ReceiveCount
+  }
+```
+
 ### Critical Workflow: Order Placement & Event-Driven Outbox
 
 To ensure absolute consistency without distributed transactions, we utilize the **Transactional Outbox & Inbox Patterns**:

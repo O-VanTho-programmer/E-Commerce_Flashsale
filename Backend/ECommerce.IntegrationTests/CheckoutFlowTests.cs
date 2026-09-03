@@ -47,8 +47,6 @@ public class CheckoutFlowTests : IClassFixture<IntegrationTestWebAppFactory>
         db.Carts.Add(cart);
         await db.SaveChangesAsync();
 
-        // Using direct SQL or DbSet if navigation property doesn't allow adding easily without generic repository
-        // CartItem constructor requires cartId and variantId
         var cartItem = new CartItem(cart.Id, variant.Id, 2, false);
         db.Set<CartItem>().Add(cartItem);
         await db.SaveChangesAsync();
@@ -82,7 +80,6 @@ public class CheckoutFlowTests : IClassFixture<IntegrationTestWebAppFactory>
         consumed.Should().BeTrue("Because DeductStockOnOrderPlacedConsumer should consume it.");
 
         // Assert 4: Inventory Deducted
-        // We reload from db because the background consumer updated it in a different DbContext scope
         await db.Entry(variant).ReloadAsync();
         variant.StockQuantity.Should().Be(8, "Because 10 - 2 = 8.");
     }

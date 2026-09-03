@@ -168,10 +168,33 @@ const { svg } = await mermaid.render('erd-svg', `erDiagram
   EXTERNAL_ORDER_SYNC_LOG {
     int Id PK
     string PlatformName
-    string ExternalOrderId
+    string ExternalOrderId UK
     string Status
     string Payload
     datetime ProcessedAt
+  }
+  OUTBOX_MESSAGE {
+    long SequenceNumber PK
+    guid MessageId
+    string DestinationAddress
+    datetime EnqueueTime
+    datetime ExpirationTime
+    string Body
+  }
+  OUTBOX_STATE {
+    guid OutboxId PK
+    guid LockId
+    datetime Created
+    datetime Delivered
+    int DeliveryCount
+  }
+  INBOX_STATE {
+    long Id PK
+    guid MessageId UK
+    guid ConsumerId UK
+    datetime Received
+    datetime Delivered
+    int ReceiveCount
   }
   }`);
 document.getElementById('erd').innerHTML = svg;
