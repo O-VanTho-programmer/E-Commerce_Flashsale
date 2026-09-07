@@ -74,6 +74,38 @@
 - `Microsoft.AspNetCore.Mvc.Testing`
 - `Testcontainers.MsSql` / `Testcontainers.Redis`
 
+### Frontend Core & Libraries
+
+**Core Framework & Runtime**
+- `Next.js 14` (`14.2.35`) — App Router, Server & Client Components, Static Generation
+- `React 18` & `React DOM 18` — UI rendering engine
+- `TypeScript 5` — Strict static typing for components, DTOs, and hooks
+
+**State Management & API Client**
+- `@reduxjs/toolkit` (`^2.12.0`) — Centralized state management
+- `RTK Query` (`@reduxjs/toolkit/query/react`) — Auto-caching, tag-based invalidation, JWT token injection
+- `react-redux` (`^9.3.0`) — Redux bindings via `<StoreProvider>`
+- `Universal REST API Client` (`src/lib/apiClient.ts`) — Fetch-based client with typed error handling (`ApiError`)
+- `Custom Hooks` (`useAuth`, `useCart`, `useCatalog`, `useFlashSale`, `useAdmin`)
+
+**Styling & Design System**
+- `tailwindcss` (`^3.4.1`) & `postcss` (`^8`) — Utility CSS configured with Nexadash design tokens
+- `clsx` (`^2.1.1`) & `tailwind-merge` (`^3.6.0`) — Conflict-free dynamic className concatenation (`cn`)
+- `class-variance-authority` (`^0.7.1`) — Type-safe component variants
+- `tailwindcss-animate` (`^1.0.7`) & `tw-animate-css` (`^1.4.0`) — Keyframe micro-animations
+- `Custom Design System` (`globals.css`) — Glassmorphism, HSL color tokens, dark/light themes
+
+**Icons & Motion**
+- `lucide-react` (`^1.40.0`) — Icon library for analytics, commerce, and navigation
+- `framer-motion` (`^13.2.0`) — Physics-based gestures and smooth UI transitions
+
+**UI Primitives**
+- `@base-ui/react` (`^1.7.0`) & `shadcn` (`^4.20.1`) — Accessible UI primitives
+
+**Linting & Tooling**
+- `eslint` (`^8`) & `eslint-config-next` (`14.2.35`) — Code quality & Next.js linting
+- `@types/node`, `@types/react`, `@types/react-dom` — Type definitions
+
 
 ### ***Database ERD
 

@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using ECommerce.Application.Category.Commands.CreateCategory;
 using ECommerce.Application.Category.Queries.GetCategories;
 using ECommerce.Application.Products.Commands.CreateProduct;
+using ECommerce.Application.Products.Queries.GetProducts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +14,13 @@ public class CatalogController : ApiControllerBase
     public async Task<IActionResult> GetCategories()
     {
         var result = await Mediator.Send(new GetCategoriesQuery());
+        return HandleResult(result);
+    }
+
+    [HttpGet("products")]
+    public async Task<IActionResult> GetProducts()
+    {
+        var result = await Mediator.Send(new GetProductQuery());
         return HandleResult(result);
     }
 

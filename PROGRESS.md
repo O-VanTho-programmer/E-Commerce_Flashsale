@@ -46,3 +46,26 @@ See full details in [`DECISION.md`](file:///d:/MyProgramme/E-Commerce_Flashsale/
 ## Phase 5: Testing & Polish
 - [x] Write Unit Tests with xUnit, Moq, FluentAssertions.
 - [x] Write Integration Tests using Testcontainers (MsSql, Redis).
+
+## Phase 6: Frontend Development (Storefront & Admin Portal)
+- [x] Backend API: Add `[HttpGet("products")]` query endpoint to `CatalogController.cs`
+- [x] Frontend: Reorganize App Router for Dual-Portal structure (`(store)` and `/admin`)
+- [x] Frontend: Implement Nexadash Admin Dashboard UI matching `Frontend/src/UI.png`
+- [x] Frontend: Implement Admin Product, Order, and Flash Sale management views
+- [x] Frontend: Connect Redux Toolkit Query with Backend APIs and JWT Authentication
+- [x] Frontend: Implement custom React hooks (`useAuth`, `useCart`, `useCatalog`, `useFlashSale`, `useAdmin`, `apiClient`)
+- [x] Frontend: Build & verify responsive design and functionality
+
+## Phase 7: Performance & Concurrency Load Testing (k6 Suite)
+- [x] Build modular k6 load testing suite in `LoadTests/` with environment-based configuration (`config.js`).
+- [x] Implement Auth load test (`01_auth.test.js`) for high-throughput registration, login, and BCrypt resilience.
+- [x] Implement Catalog read-heavy stress test (`02_catalog.test.js`) for products, categories, and active flash sales.
+- [x] Implement Cart lifecycle load test (`03_cart.test.js`) verifying JWT auth and cart calculations.
+- [x] Implement Redis Distributed Lock contention test (`04_flash_sale_lock.test.js`) to stress `RedLock.net` and verify zero overselling under race conditions.
+- [x] Implement Order checkout & Outbox load test (`05_checkout.test.js`) for transactional integrity and MassTransit events.
+- [x] Implement Payment Webhook idempotency test (`06_payment_webhook.test.js`) simulating concurrent duplicate deliveries.
+- [x] Implement Omni-Channel Shopee sync test (`07_omnichannel.test.js`) validating channel stock allocation deductions.
+- [x] Implement full rush-hour mixed workload simulation (`08_flash_sale_rush.test.js`).
+- [x] Create PowerShell automation runner (`run-tests.ps1`) with interactive and CLI parameter support.
+- [x] Document test suite, metrics, and execution in `LoadTests/README.md`.
+

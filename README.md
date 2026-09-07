@@ -25,6 +25,7 @@ FlashCommerce Engine is a production-ready, Modular Monolith backend designed to
 - **Idempotent Webhooks:** Guaranteed exactly-once processing for payment and external platform integrations.
 - **JWT Authentication & RBAC:** Secure, stateless endpoint protection.
 - **Automated Integration Testing:** Full E2E flows tested using Testcontainers (ephemeral SQL & Redis).
+- **k6 Concurrency & Stress Testing:** Dedicated load testing suite benchmarking Redis distributed locks, race condition resilience, and transactional outbox under heavy traffic.
 
 ## 🛠️ Tech Stack
 
@@ -33,7 +34,7 @@ FlashCommerce Engine is a production-ready, Modular Monolith backend designed to
 - **Caching & Locks:** Redis, RedLock.net
 - **Messaging:** MassTransit (AWS SQS/SNS ready, InMemory for testing)
 - **Architecture:** Clean Architecture, CQRS (MediatR)
-- **Testing:** xUnit, FluentAssertions, Testcontainers
+- **Testing & Benchmarking:** xUnit, FluentAssertions, Testcontainers, **Grafana k6**
 
 ## 🏗️ Architecture & Workflows
 
@@ -352,15 +353,55 @@ The platform is designed with a **Message-Driven Architecture** powered by **Mas
 
 You can test the entire flow directly in Swagger or via Postman:
 
-- `POST /api/auth/register` - Create a new user.
-- `POST /api/auth/login` - Authenticate and retrieve JWT token.
-- `GET /api/catalog/products` - Browse available products.
-- `POST /api/cart` - Add an item to the cart (triggers Redis lock for flash sales).
-- `POST /api/orders` - Place an order (Commits SQL transaction & drops event into Outbox).
+- `POST /api/v1/auth/register` - Create a new user.
+- `POST /api/v1/auth/login` - Authenticate and retrieve JWT token.
+- `GET /api/v1/catalog/products` - Browse available products.
+- `POST /api/v1/cart/items` - Add an item to the cart (triggers Redis lock for flash sales).
+- `POST /api/v1/order` - Place an order (Commits SQL transaction & drops event into Outbox).
+- `POST /api/v1/webhooks/payment` - Mock payment webhook (Idempotent processing).
+- `POST /api/v1/webhooks/shopee/orders` - Omni-channel order sync.
+
+## ⚡ Performance & Concurrency Load Testing (k6)
+
+The project includes an enterprise-grade, modular **Grafana k6** load testing suite located in [`LoadTests/`](file:///d:/MyProgramme/E-Commerce_Flashsale/LoadTests) targeting every critical feature of the high-concurrency engine:
+
+| # | Test Scenario | File | Description & Stress Target |
+|:---|:---|:---|:---|
+| **01** | **Auth Flow** | [`01_auth.test.js`](file:///d:/MyProgramme/E-Commerce_Flashsale/LoadTests/scenarios/01_auth.test.js) | High-throughput registration & login stress; verifies BCrypt CPU impact & JWT issuance. |
+| **02** | **Catalog Read Scaling** | [`02_catalog.test.js`](file:///d:/MyProgramme/E-Commerce_Flashsale/LoadTests/scenarios/02_catalog.test.js) | High-RPS read stress on product catalog, categories, and active flash sales (`p95 < 150ms`). |
+| **03** | **Cart Operations** | [`03_cart.test.js`](file:///d:/MyProgramme/E-Commerce_Flashsale/LoadTests/scenarios/03_cart.test.js) | Full cart lifecycle: user authentication, cart retrieval, item additions, and deletions. |
+| **04** | **Flash Sale Lock Contention** 🔥 | [`04_flash_sale_lock.test.js`](file:///d:/MyProgramme/E-Commerce_Flashsale/LoadTests/scenarios/04_flash_sale_lock.test.js) | **Extreme Concurrency Spike**: 60+ VUs contending for the *same* limited item simultaneously. Verifies Redis Distributed Lock (`RedLock.net`), graceful 400 rejections, and **zero overselling** without 500 errors. |
+| **05** | **Checkout & Outbox** | [`05_checkout.test.js`](file:///d:/MyProgramme/E-Commerce_Flashsale/LoadTests/scenarios/05_checkout.test.js) | End-to-end order placement, SQL transaction isolation, and MassTransit Outbox event dispatching. |
+| **06** | **Payment Webhook Idempotency** | [`06_payment_webhook.test.js`](file:///d:/MyProgramme/E-Commerce_Flashsale/LoadTests/scenarios/06_payment_webhook.test.js) | Simulates concurrent duplicate webhook retries; asserts exactly 1 success and duplicate suppression (`already_processed`). |
+| **07** | **Omni-Channel Sync** | [`07_omnichannel.test.js`](file:///d:/MyProgramme/E-Commerce_Flashsale/LoadTests/scenarios/07_omnichannel.test.js) | Shopee external webhook ingestion and allocated channel stock decrement under load. |
+| **08** | **Full Flash Sale Rush** | [`08_flash_sale_rush.test.js`](file:///d:/MyProgramme/E-Commerce_Flashsale/LoadTests/scenarios/08_flash_sale_rush.test.js) | Comprehensive multi-scenario simulation: 60% Browsing, 25% Rush reservations, 10% Checkout, 5% Webhooks. |
+
+### Running Load Tests
+
+#### Interactive PowerShell Runner
+```powershell
+cd LoadTests
+.\run-tests.ps1
+```
+
+#### Run Specific Test with Custom Parameters
+```powershell
+# Run Flash Sale Concurrency Lock test
+.\run-tests.ps1 -Test 4
+
+# Run all tests sequentially
+.\run-tests.ps1 -Test all
+
+# Override target URL and virtual users
+.\run-tests.ps1 -Test 2 -BaseUrl "http://localhost:5235" -VUs 100 -Duration "30s"
+```
+
+For more details, see [`LoadTests/README.md`](file:///d:/MyProgramme/E-Commerce_Flashsale/LoadTests/README.md).
 
 ## 🛣️ Roadmap / Future Improvements
 
-- [ ] **Frontend Storefront:** Build a highly responsive Next.js (React) UI.
-- [ ] **Payment Gateway Integration:** Implement Stripe / PayPal webhook handlers.
-- [ ] **Advanced Analytics:** Integrate ELK stack for real-time sales dashboard tracking.
+- [x] **Frontend Storefront & Admin Portal:** Next.js (React) UI with Redux Toolkit Query & Tailwind CSS.
+- [x] **k6 Concurrency & Performance Testing:** Complete suite for distributed locks, outbox, and webhooks.
+- [ ] **Payment Gateway Integration:** Implement live Stripe / VNPay / MoMo webhook handlers.
+- [ ] **Advanced Analytics:** Integrate ELK / OpenTelemetry stack for real-time sales dashboard tracking.
 - [ ] **Kubernetes Deployment:** Helm Charts for effortless cloud-native deployment.
