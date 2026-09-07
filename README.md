@@ -1,4 +1,4 @@
-# ⚡ FlashCommerce Engine
+# FlashCommerce Engine
 
 <div align="center">
   <p><strong>A high-performance, event-driven E-Commerce & Flash Sale platform built for scale.</strong></p>
