@@ -3,9 +3,7 @@
 <div align="center">
   <p><strong>A high-performance, event-driven E-Commerce & Flash Sale platform built for scale.</strong></p>
   
-  [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
   [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
-  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#)
 </div>
 
 ## 📖 Overview
