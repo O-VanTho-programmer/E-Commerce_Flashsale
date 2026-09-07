@@ -53,6 +53,7 @@ export default function () {
   const res = http.post(ENDPOINTS.CART_ITEMS, payload, {
     headers: authHeaders,
     tags: { name: 'FlashSaleAddToCart' },
+    responseCallback: http.expectedStatuses(200, 400),
   });
 
   // 4. Validate Distributed Lock & Concurrency Responses
@@ -78,6 +79,5 @@ export default function () {
     }
   }
 
-  // Small sleep to pace iterations
   sleep(0.3);
 }

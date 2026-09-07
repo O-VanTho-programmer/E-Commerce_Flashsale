@@ -52,14 +52,16 @@ export default function () {
 
   sleep(0.3);
 
-  // 3. Get Active Flash Sale
+  // 3. Get Active Flash Sale (200 OK, 204 NoContent, or 400 when none active)
   const flashSaleRes = http.get(ENDPOINTS.ACTIVE_FLASHSALE, {
     headers: DEFAULT_HEADERS,
     tags: { name: 'GetActiveFlashSale' },
+    responseCallback: http.expectedStatuses(200, 204, 400),
   });
 
   check(flashSaleRes, {
-    'get active flash sale returns 200 or 204': (r) => r.status === 200 || r.status === 204,
+    'get active flash sale returns 200, 204 or clean 400': (r) =>
+      r.status === 200 || r.status === 204 || r.status === 400,
   });
 
   sleep(0.5);

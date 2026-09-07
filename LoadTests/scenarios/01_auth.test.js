@@ -53,13 +53,14 @@ export default function () {
 
   sleep(0.5);
 
-  // 3. Negative check: Invalid login
+  // 3. Negative check: Invalid login (expect 400 Bad Request)
   const invalidLoginRes = http.post(
     ENDPOINTS.LOGIN,
     JSON.stringify({ email: email, password: 'WrongPassword!' }),
     {
       headers: DEFAULT_HEADERS,
       tags: { name: 'InvalidLogin' },
+      responseCallback: http.expectedStatuses(400),
     }
   );
 
